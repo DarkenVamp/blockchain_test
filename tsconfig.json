@@ -25,7 +25,7 @@
     "scripts"
   ],
   "files": [
-    "hardhat.config.ts"
+    "hardhat.config.cts"
   ],
   "references": [
     {
