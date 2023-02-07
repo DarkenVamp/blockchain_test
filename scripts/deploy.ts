@@ -1,18 +1,37 @@
 import { ethers } from "hardhat";
+import * as fs from "fs";
+import { abi as UsersABI } from '../artifacts/contracts/Users.sol/Users.json'
+import { abi as EnergyABI } from '../artifacts/contracts/Energy.sol/Energy.json'
+
 
 async function main() {
-  const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const ONE_YEAR_IN_SECS = 365 * 24 * 60 * 60;
-  const unlockTime = currentTimestampInSeconds + ONE_YEAR_IN_SECS;
+  const Users = await ethers.getContractFactory("Users")
+  const Energy = await ethers.getContractFactory("Energy")
 
-  const lockedAmount = ethers.utils.parseEther("1");
+  const users = await Users.deploy()
+  await users.deployed()
 
-  const Lock = await ethers.getContractFactory("Lock");
-  const lock = await Lock.deploy(unlockTime, { value: lockedAmount });
+  const energy = await Energy.deploy()
+  await energy.deployed()
 
-  await lock.deployed();
+  const UsersData = {
+    address: users.address,
+    abi: UsersABI,
+  }
 
-  console.log(`Lock with 1 ETH and unlock timestamp ${unlockTime} deployed to ${lock.address}`);
+  const EnergyData = {
+    address: energy.address,
+    abi: EnergyABI,
+  }
+
+  console.log("Writing Files to JSON")
+
+  fs.mkdirSync('./src/artifacts', { recursive: true })
+  fs.writeFileSync("./src/artifacts/Users.json", JSON.stringify(UsersData))
+  fs.writeFileSync("./src/artifacts/Energy.json", JSON.stringify(EnergyData))
+
+  console.log(`Deployed Users.sol at ${users.address}`)
+  console.log(`Deployed Energy.sol at ${energy.address}`)
 }
 
 // We recommend this pattern to be able to use async/await everywhere
