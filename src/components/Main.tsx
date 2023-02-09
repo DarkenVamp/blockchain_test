@@ -1,21 +1,25 @@
 import { Contract, utils } from 'ethers'
 import { useEthers, useEtherBalance, Localhost } from "@usedapp/core"
 import { formatEther } from "@ethersproject/units"
-import Users from '../Users.json'
-import { GetAllUsers, Register } from '../hooks'
-// import Energy from '../Energy.json'
-import { useEffect } from 'react'
+import { GetAllUsers, GetUser, Register } from '../hooks'
+import { address as UsersAddress, abi as UsersABI } from '../artifacts/Users.json'
+// import { address as EnergyAddress, abi as EnergyABI } from '../artifacts/Energy.json'
+import { useEffect, useState } from 'react'
 
 export const Main = () => {
     const { account } = useEthers()
     const etherBalance = useEtherBalance(account, { chainId: Localhost.chainId })
-    const USERS_ADDRESS = '0x6D11948C194C466eBB59362bDF5dA86F527bb0A2'
-    // const ENERGY_ADDRESS = '0x49cD6Eb11e9aCa1Ce45E8d0D980fc384A1256219'
-    const users = new Contract(USERS_ADDRESS, new utils.Interface(Users.abi))
-    // const energy = new Contract(ENERGY_ADDRESS, new utils.Interface(Energy.abi))
+    const users = new Contract(UsersAddress, new utils.Interface(UsersABI))
+    // const energy = new Contract(EnergyAddress, new utils.Interface(EnergyABI))
+
+    const [accountAddress, setAccountAddress] = useState("")
+    const [userName, setUserName] = useState("")
+    const [userEnergy, setUserEnergy] = useState(0)
 
     const { value: userList, error: errorUserList } = GetAllUsers(users)
     const { state: statusRegister, send: register } = Register(users)
+    const { value: accountDetails, error: errorAccountDetails } = GetUser(users, accountAddress)
+
 
     function getValue() {
         if (errorUserList) console.error(errorUserList.message)
@@ -23,7 +27,13 @@ export const Main = () => {
     }
 
     function setValue() {
-        register(account, "Bob", 500)
+        register(account, userName, userEnergy)
+    }
+
+    function getAccount() {
+        const { name, energy_amount } = accountDetails[0]
+        if (errorAccountDetails) console.error(errorAccountDetails.message)
+        else console.log(name, energy_amount.toString())
     }
 
     useEffect(() => {
@@ -40,8 +50,14 @@ export const Main = () => {
     return (
         <div>
             {etherBalance && <p>Balance: {formatEther(etherBalance)}</p>}
+            <input placeholder='Enter Name' onChange={(e) => setUserName(e.target.value)} />
+            <input placeholder='Enter Energy' onChange={(e) => setUserEnergy(parseInt(e.target.value))} />
             <button onClick={setValue}>Register</button>
+            <br />
             <button onClick={getValue}>Get Users</button>
+            <br />
+            <input placeholder='Enter User Address' onChange={(e) => setAccountAddress(e.target.value)} />
+            <button onClick={getAccount}>Get User Info</button>
         </div>
     )
 }

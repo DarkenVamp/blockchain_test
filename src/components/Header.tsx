@@ -8,7 +8,7 @@ export const Header = () => {
         <div>
             {isConnected
                 ?
-                <button color='primary' onClick={deactivate}>Connected!</button>
+                <button color='primary' onClick={deactivate}>Disconnect</button>
                 :
                 <button color='primary' onClick={activateBrowserWallet}>Connect</button>
             }
