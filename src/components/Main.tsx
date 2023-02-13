@@ -2,23 +2,21 @@ import { Contract, utils } from 'ethers'
 import { useEthers, useEtherBalance, Localhost } from "@usedapp/core"
 import { formatEther } from "@ethersproject/units"
 import { GetAllUsers, GetUser, Register } from '../hooks'
-import { address as UsersAddress, abi as UsersABI } from '../artifacts/Users.json'
-// import { address as EnergyAddress, abi as EnergyABI } from '../artifacts/Energy.json'
+import { address as EnergyAddress, abi as EnergyABI } from '../artifacts/Energy.json'
 import { useEffect, useState } from 'react'
 
 export const Main = () => {
     const { account } = useEthers()
     const etherBalance = useEtherBalance(account, { chainId: Localhost.chainId })
-    const users = new Contract(UsersAddress, new utils.Interface(UsersABI))
-    // const energy = new Contract(EnergyAddress, new utils.Interface(EnergyABI))
+    const energy = new Contract(EnergyAddress, new utils.Interface(EnergyABI))
 
     const [accountAddress, setAccountAddress] = useState("")
     const [userName, setUserName] = useState("")
     const [userEnergy, setUserEnergy] = useState(0)
 
-    const { value: userList, error: errorUserList } = GetAllUsers(users)
-    const { state: statusRegister, send: register } = Register(users)
-    const { value: accountDetails, error: errorAccountDetails } = GetUser(users, accountAddress)
+    const { value: userList, error: errorUserList } = GetAllUsers(energy)
+    const { state: statusRegister, send: register } = Register(energy)
+    const { value: accountDetails, error: errorAccountDetails } = GetUser(energy, accountAddress)
 
 
     function getValue() {
@@ -27,7 +25,7 @@ export const Main = () => {
     }
 
     function setValue() {
-        register(account, userName, userEnergy)
+        register(userName, userEnergy)
     }
 
     function getAccount() {
