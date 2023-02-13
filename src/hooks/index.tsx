@@ -16,6 +16,11 @@ export function Register(contract: Contract) {
     return { state, send }
 }
 
+export function BuyEnergy(contract: Contract) {
+    const { state, send } = useContractFunction(contract, "buy_energy")
+    return { state, send }
+}
+
 export function GetUser(contract: Contract, address: string) {
     const { value, error } = useCall({
         contract: contract,
