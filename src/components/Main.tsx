@@ -1,5 +1,5 @@
 import { Contract, utils } from 'ethers'
-import { useEthers, useEtherBalance, Localhost } from "@usedapp/core"
+import { useEthers, useEtherBalance, Localhost, useSendTransaction } from "@usedapp/core"
 import { formatEther } from "@ethersproject/units"
 import { BuyEnergy, GetAllUsers, GetUser, Register } from '../hooks'
 import { address as EnergyAddress, abi as EnergyABI } from '../artifacts/Energy.json'
@@ -19,6 +19,7 @@ export const Main = () => {
     const { state: statusRegister, send: register } = Register(energy)
     const { state: statusBuy, send: buyEnergy } = BuyEnergy(energy)
     const { value: accountDetails, error: _errorAccountDetails } = GetUser(energy, account as string)
+    const { sendTransaction, state: txState } = useSendTransaction()
 
     function registerUser() {
         register(userName, userEnergy)
@@ -26,6 +27,7 @@ export const Main = () => {
 
     function buy() {
         buyEnergy(sellerAddress, buyingEnergy)
+        sendTransaction({ to: sellerAddress, value: utils.parseEther("10") })
     }
 
     useEffect(() => {
@@ -42,6 +44,11 @@ export const Main = () => {
         console.log("BuyEnergy:")
         console.log(statusBuy)
     }, [statusBuy])
+
+    useEffect(() => {
+        console.log("Transaction Status:")
+        console.log(txState)
+    }, [txState])
 
     return (
         <div>
